@@ -1,0 +1,7 @@
+plombery
+bs4
+requests
+celery
+pandas
+openpyxl
+redis

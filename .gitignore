@@ -1,0 +1,4 @@
+*.log
+*.ipynb
+*data
+*pycache*

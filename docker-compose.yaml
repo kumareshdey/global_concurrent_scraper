@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672"    # RabbitMQ port
+      - "15672:15672"  # RabbitMQ management UI port
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - EXECUTION_TYPE=celery
+      - CELERY_BROKER_URL=pyamqp://guest:guest@rabbitmq:5672// 
+    working_dir: /app
+    volumes:
+      - shared-data:/app  # Mount a volume for shared data
+    depends_on:
+      - rabbitmq
+
+  # plombery:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - EXECUTION_TYPE=plombery
+  #     - CELERY_BROKER_URL=pyamqp://guest:guest@rabbitmq:5672// 
+  #   ports:
+  #     - "9877:9877"  # Example port for Plombery, adjust as necessary
+  #   working_dir: /app
+  #   volumes:
+  #     - shared-data:/app  # Mount the same volume as Celery
+  #   depends_on:
+  #     - rabbitmq
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - EXECUTION_TYPE=fast_api
+      - CELERY_BROKER_URL=pyamqp://guest:guest@rabbitmq:5672//
+    ports:
+      - "8000:8000"  # Example port for FastAPI, adjust as necessary
+    working_dir: /app
+    volumes:
+      - shared-data:/app  # Mount the same volume as Celery and Plombery
+
+volumes:
+  shared-data:  # Define the shared volume
